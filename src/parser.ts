@@ -13,12 +13,17 @@ export interface ParseResult {
  * Normalizes input by removing bot mentions, slash commands, and common conversational prefixes.
  */
 export function cleanInputText(text: string): string {
-  return text
-    .replace(/^@\w+\s*/i, "") // strip leading bot mention @bot
+  let cleaned = text
+    .replace(/@\w+\b/gi, " ") // strip any bot mentions @bot
     .replace(/^\/(?:convert|tz|time|calc)(?:@\w+)?\s*/i, "") // strip slash commands like /convert or /convert@bot
+    .trim();
+
+  cleaned = cleaned
     .replace(/^(?:please\s+)?(?:convert\s+time|convert)\s+/i, "") // strip leading "convert"
     .replace(/^(?:what\s+time\s+is\s+it\s+(?:in|at)\s+)/i, "")
     .trim();
+
+  return cleaned.replace(/\s+/g, " ");
 }
 
 /**
@@ -85,6 +90,7 @@ export function parseQuery(rawText: string): ParseResult {
   let locationQuery = remainder
     .replace(/^(?:in|at|for|from)\s+/i, "")
     .replace(/\s+(?:to\s+.*)$/i, "") // ignore trailing 'to ...' for now
+    .replace(/\s+time$/i, "") // strip trailing "time" (e.g. "NY time", "Chicago time")
     .replace(/\s+(?:today|tomorrow|yesterday)$/i, "")
     .replace(/^(?:today|tomorrow|yesterday)\s+/i, "")
     .trim();

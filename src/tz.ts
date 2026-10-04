@@ -17,6 +17,7 @@ export interface TargetConversion {
 
 export interface ConversionResult {
   sourceCity: string;
+  sourceCountry?: string;
   sourceTimeString: string;
   sourceZoneAbbr: string;
   conversions: TargetConversion[];
@@ -250,6 +251,7 @@ export function convertCityTime(
 
   return {
     sourceCity: city.name,
+    sourceCountry: city.country,
     sourceTimeString: sourceParts.timeString,
     sourceZoneAbbr: sourceParts.timeZoneAbbr,
     conversions,

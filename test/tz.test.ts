@@ -99,10 +99,26 @@ describe("Timezone Parser & Conversion Engine", () => {
       expect(dhaka?.dayDiff).toBe(0);
 
       const card = formatConversionCard(conversion);
-      expect(card).toContain("🕒 11:00 AM Chicago");
+      expect(card).toContain("🕒 11:00 AM Chicago, US");
       expect(card).toContain("🇬🇧 05:00 PM London (UK)");
       expect(card).toContain("🇹🇳 05:00 PM Tunisia");
       expect(card).toContain("🇧🇩 10:00 PM Dhaka (BD)");
+    });
+
+    it("includes country code for New York and Auckland", () => {
+      const nyRes = parseQuery("2 am NY time");
+      expect(nyRes.success).toBe(true);
+      expect(nyRes.city?.country).toBe("US");
+
+      const nyCard = formatConversionCard(convertCityTime(nyRes.parsedTime!, nyRes.city!));
+      expect(nyCard).toContain("New York, US");
+
+      const aklRes = parseQuery("@slg_tzbot 11 pm Auckland");
+      expect(aklRes.success).toBe(true);
+      expect(aklRes.city?.country).toBe("NZ");
+
+      const aklCard = formatConversionCard(convertCityTime(aklRes.parsedTime!, aklRes.city!));
+      expect(aklCard).toContain("Auckland, NZ");
     });
 
     it("handles midnight rollover (+1 day)", () => {

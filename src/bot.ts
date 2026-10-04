@@ -1,10 +1,28 @@
 import { Bot } from "grammy";
+import type { UserFromGetMe } from "grammy/types";
 import { parseQuery } from "./parser";
 import { convertCityTime } from "./tz";
 import { formatConversionCard, getHelpMessage, getUsageHelp } from "./formatter";
 
+export const BOT_INFO: UserFromGetMe = {
+  id: 8974983694,
+  is_bot: true,
+  first_name: "TZ Convert",
+  username: "slg_tzbot",
+  can_join_groups: true,
+  can_read_all_group_messages: false,
+  supports_inline_queries: true,
+  supports_guest_queries: false,
+  can_connect_to_business: false,
+  has_main_web_app: false,
+  has_topics_enabled: false,
+  allows_users_to_create_topics: false,
+  can_manage_bots: false,
+  supports_join_request_queries: false,
+};
+
 export function createBot(token: string) {
-  const bot = new Bot(token);
+  const bot = new Bot(token, { botInfo: BOT_INFO });
 
   // 1. /start command
   bot.command("start", async (ctx) => {
@@ -49,9 +67,18 @@ export function createBot(token: string) {
     const isPrivate = ctx.chat.type === "private";
     const replyParams = { reply_parameters: { message_id: ctx.message.message_id } };
 
-    // In groups, only process if the bot is mentioned
-    const botInfo = ctx.me;
-    const isMentioned = botInfo && text.toLowerCase().includes(`@${botInfo.username.toLowerCase()}`);
+    // In groups, process if the bot is mentioned or replied to
+    const lowerText = text.toLowerCase();
+    const isMentioned =
+      lowerText.includes("@slg_tzbot") ||
+      Boolean(
+        ctx.message.entities?.some(
+          (e) =>
+            e.type === "mention" &&
+            text.substring(e.offset, e.offset + e.length).toLowerCase() === "@slg_tzbot"
+        )
+      ) ||
+      ctx.message.reply_to_message?.from?.id === BOT_INFO.id;
 
     if (!isPrivate && !isMentioned) {
       return;

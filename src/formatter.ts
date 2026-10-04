@@ -6,8 +6,12 @@ import type { ConversionResult } from "./tz";
 export function formatConversionCard(result: ConversionResult): string {
   const lines: string[] = [];
 
-  // Header line: Source time & city with timezone abbreviation
-  lines.push(`🕒 ${result.sourceTimeString} ${result.sourceCity} (${result.sourceZoneAbbr})`);
+  const locationLabel = result.sourceCountry
+    ? `${result.sourceCity}, ${result.sourceCountry}`
+    : result.sourceCity;
+
+  // Header line: Source time & city, country with timezone abbreviation
+  lines.push(`🕒 ${result.sourceTimeString} ${locationLabel} (${result.sourceZoneAbbr})`);
   lines.push(""); // empty spacer line
 
   // Hub conversion lines
